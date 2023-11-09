@@ -18,18 +18,20 @@ class FilecrawlerspiderSpider(scrapy.Spider):
             yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response):
-        records = response.xpath("//div[contains(@class,'page-list')]")
+        records = response.xpath("//div[contains(@class,'page-list')]/ul/li")
         for record in records:
-            title = record.xpath("./ul/li/span[1]/a/@title").extract_first()
-            url = record.xpath("./ul/li/span[1]/a/@href").extract_first()
-            publish_date = record.xpath("./ul/li/span[2]/text()").extract_first()
+            title = record.xpath("./span[1]/a/@title").extract_first()
+            url = record.xpath("./span[1]/a/@href").extract_first()
+            publish_date = record.xpath(".//span[2]/text()").extract_first()
             yield scrapy.Request(url=url, callback=self.parse_content,
                                  meta={'title': title,
                                        'url': url,
                                        'publish_date': publish_date
                                        })
+            print(title)
         next_page = response.xpath("//a[contains(@class,'nextpostslink')]/@href").extract_first()
         if next_page:
+            print(title ,next_page)
             yield scrapy.Request(url=next_page, callback=self.parse)
         pass
 
